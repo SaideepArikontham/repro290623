@@ -1,0 +1,66 @@
+{
+	"name": "Json1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "sample.json",
+				"fileSystem": "data"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"Events": {
+					"type": "object",
+					"properties": {
+						"2022-12-30T22:01:00": {
+							"type": "object",
+							"properties": {
+								"GrossVolume": {
+									"type": "number"
+								},
+								"DipHeight": {
+									"type": "number"
+								},
+								"WaterHeight": {
+									"type": "integer"
+								},
+								"IsManual": {
+									"type": "boolean"
+								}
+							}
+						},
+						"2022-12-30T22:05:00": {
+							"type": "object",
+							"properties": {
+								"GrossVolume": {
+									"type": "number"
+								},
+								"DipHeight": {
+									"type": "number"
+								},
+								"WaterHeight": {
+									"type": "integer"
+								},
+								"IsManual": {
+									"type": "boolean"
+								}
+							}
+						}
+					}
+				},
+				"id": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,80 @@
+{
+	"name": "dataflow2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Xml1",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "flatten1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "filter1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          payload as (body as (compartments as (compartment as (compartmentNo as short, product as short, references as (reference as (referenceType as string, referenceValue as integer)))[])), header as (createdDate as string, customerID as short))",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     validationMode: 'none',",
+				"     namespaces: true) ~> source1",
+				"source1 select(mapColumn(",
+				"          body = payload.body,",
+				"          each(payload.header,match(true()))",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 foldDown(unroll(body.compartments.compartment),",
+				"     mapColumn(",
+				"          customerID,",
+				"          createdDate,",
+				"          references = body.compartments.compartment.references",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten1",
+				"flatten1 select(mapColumn(",
+				"          customerID,",
+				"          createdDate,",
+				"          each(references.reference,match(true()))",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 filter(referenceType=='ShipmentID') ~> filter1",
+				"filter1 sink(validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     store: 'cache',",
+				"     format: 'inline',",
+				"     output: false,",
+				"     saveOrder: 1,",
+				"     mapColumn(",
+				"          customerID,",
+				"          createdDate,",
+				"          ShipmentID = referenceValue",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
